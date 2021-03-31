@@ -15,6 +15,7 @@ A deep learning chatbot implimented usng seq2seq attention based model usinf bil
 ### to run the trained model on local host:
  * install the requirements : `pip install -r requirements.txt`
  * run : `python3 dashapp.py`
+ * open the local host https://127.0.01:3000/
 
 ### to train the model from python console:
  * install the requirements : `pip install -r requirements.txt`
