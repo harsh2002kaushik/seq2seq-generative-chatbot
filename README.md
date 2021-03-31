@@ -16,4 +16,7 @@ A deep learning chatbot implimented usng seq2seq attention based model usinf bil
  * install the requirements : `pip install -r requirements.txt`
  * run : `python3 dashapp.py`
 
-### to train the model:
+### to train the model from python console:
+ * install the requirements : `pip install -r requirements.txt`
+ * make a wandb account 
+ * run : `python3 train.py`
