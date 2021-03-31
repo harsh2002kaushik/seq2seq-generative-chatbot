@@ -1,2 +1,2 @@
-# chatbot_2
+# seq2seq_chatbot
 wiill j 
