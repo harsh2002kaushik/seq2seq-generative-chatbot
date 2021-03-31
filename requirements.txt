@@ -1,0 +1,5 @@
+tensorflow
+sklearn
+wandb
+dash 
+dash-bootstrap-components
