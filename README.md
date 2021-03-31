@@ -1,2 +1,2 @@
-# seq2seq_chatbot
-wiill j 
+# seq2seq-generative-chatbot
+## Description
