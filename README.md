@@ -1,6 +1,6 @@
 # seq2seq-generative-chatbot
 ## Description
-A deep learning chatbot implimented usng seq2seq attention based model usinf bilstm layers and was trained on combination of dataset like Cornell-Movie-Dialogs-Corpus for sequences having length less than 10 words.
+A deep learning chatbot implemented using seq2seq attention based model using bilstm layer and was trained on combination of dataset like Cornell-Movie-Dialogs-Corpus for sequences having length less than 10 words.
 
 
 ## Prerequisties
