@@ -3,3 +3,4 @@ tensorflow-cpu
 #wandb
 dash 
 dash-bootstrap-components
+gunicorn
