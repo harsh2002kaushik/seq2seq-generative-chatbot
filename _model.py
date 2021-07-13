@@ -1,15 +1,18 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 14 04:15:52 2021
-
-@author: harsh
-"""
 
 import tensorflow as tf
 import time
 import os
-from model import *
+from model import Encoder, Decoder,embedding, max_length_inp, max_length_out,tokenizer
+from preprocessor import preprocess_sequence
+num_words = 23500
+embedding_dim = 128        
+encoder_units = 512
+decoder_units = 1024    
+EPOCHS = 100
+vocab_size  = num_words + 1
+BATCH_SIZE = 64
+#max_length_inp = max_length_inp
+#max_length_out = max_length_out
 class Model(tf.keras.Model):
     def __init__(self):
         super(Model,self).__init__()
@@ -140,3 +143,9 @@ class Model(tf.keras.Model):
                 return result, sentence
 
             dec_input = tf.expand_dims([prediction_id],0)
+            
+        return result, sentence           
+                
+    def restore(self):
+        self.checkpoint.restore(tf.train.latest_checkpoint(self.checkpoint_dir))
+
