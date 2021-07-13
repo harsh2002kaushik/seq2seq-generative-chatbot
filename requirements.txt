@@ -1,5 +1,5 @@
 tensorflow-cpu
-sklearn
-wandb
+#sklearn
+#wandb
 dash 
 dash-bootstrap-components
