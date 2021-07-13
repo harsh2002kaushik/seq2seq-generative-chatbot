@@ -14,9 +14,9 @@ import dash_html_components as html
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
-import train
+import _model
 
-model = train.Model()
+model = _model.Model()
 #model.restore()
 model.load_weights('model_weights')
 #model.save_embeddings()
