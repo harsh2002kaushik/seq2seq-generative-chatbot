@@ -1,11 +1,17 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jul 14 04:15:52 2021
+
+@author: harsh
+"""
 
 import tensorflow as tf
 import time
 import os
-from model import Encoder, Decoder,embedding, max_length_inp, max_length_out
+#from model import Encoder, Decoder,embedding, max_length_inp, max_length_out
 from preprocessor import preprocess_sequence
-import pickle 
-
+import pickle
 num_words = 23500
 embedding_dim = 128        
 encoder_units = 512
@@ -13,9 +19,87 @@ decoder_units = 1024
 EPOCHS = 100
 vocab_size  = num_words + 1
 BATCH_SIZE = 64
-
+max_length_inp = 12
+max_length_out = 12
 tokenizer = pickle.load(open('tokenizer.pkl','rb'))
 
+embedding =  tf.keras.layers.Embedding(vocab_size, embedding_dim)
+
+class Encoder(tf.keras.Model):
+    
+  def __init__(self, vocab_size, embedding_dim, enc_units, batch_size):
+    super(Encoder, self).__init__()
+    self.embedding_dim = embedding_dim
+    self.enc_units = enc_units
+    self.batch_size = batch_size
+    lstm_1 = tf.keras.layers.LSTM(self.enc_units, return_sequences=True, return_state=True)
+    self.bilstm_1 = tf.keras.layers.Bidirectional(lstm_1, merge_mode='concat')
+    lstm = tf.keras.layers.LSTM(self.enc_units, return_sequences=True, return_state=True)           
+    self.bilstm = tf.keras.layers.Bidirectional(lstm, merge_mode='concat')
+
+  def call(self, x, hidden):
+
+    x = embedding(x)
+    x = self.bilstm_1(x, initial_state = hidden)
+    output, forward_h, forward_c, backward_h, backward_c = self.bilstm(x)
+    
+    
+    state_h = tf.concat((forward_h, backward_h), axis=-1)
+    state_c = tf.concat((forward_h ,backward_h), axis=-1)
+    state = [state_h, state_c]
+    state = tf.squeeze(state)
+    return output, state_h, state
+
+  def initialize_state(self):
+    return [tf.zeros((self.batch_size,self.enc_units )) for i in range(4)]
+
+class BahdanauAttention(tf.keras.layers.Layer):
+    
+  def __init__(self, units):
+    super(BahdanauAttention,self).__init__()
+    self.W1 = tf.keras.layers.Dense(units)
+    self.W2 = tf.keras.layers.Dense(units)
+    self.V = tf.keras.layers.Dense(1)
+
+  def call(self, query, values):
+    query_with_time_axis = tf.expand_dims(query,1)
+
+    score = self.V(tf.nn.tanh(self.W1(query_with_time_axis)+self.W2(values)))
+
+    attention_weights = tf.nn.softmax(score, axis=1) 
+
+    context_vector = attention_weights*values
+    context_vector = tf.reduce_sum(context_vector, axis=1) 
+
+    return context_vector,attention_weights
+
+class Decoder(tf.keras.Model):
+    
+  def __init__(self, vocab_size, embedding_dim, dec_units, batch_sz):
+    super(Decoder, self).__init__()
+    self.batch_sz = batch_sz
+    self.dec_units = dec_units
+    embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim)
+    self.lstm = tf.keras.layers.LSTM(self.dec_units, return_sequences=True, return_state=True)       
+    self.fc = tf.keras.layers.Dense(vocab_size)
+    self.attention = BahdanauAttention(self.dec_units)
+
+  def call(self, x, hidden, enc_output):
+    context_vector, attention_weights = self.attention(hidden, enc_output)
+
+    x = embedding(x)  
+    x = tf.concat([tf.expand_dims(context_vector,1), x], axis=-1)  
+    output, state_h,state_c =  self.lstm(x)        
+    output = tf.reshape(output, (-1, output.shape[2]))   
+    x = self.fc(output)
+    state = [state_h,state_c]
+    state = tf.squeeze(state)
+
+    return x,state_h, attention_weights
+
+
+#max_length_inp = max_length_inp
+#max_length_out = max_length_out
 class Model(tf.keras.Model):
     def __init__(self):
         super(Model,self).__init__()
@@ -151,4 +235,3 @@ class Model(tf.keras.Model):
                 
     def restore(self):
         self.checkpoint.restore(tf.train.latest_checkpoint(self.checkpoint_dir))
-
