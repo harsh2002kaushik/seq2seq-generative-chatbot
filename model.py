@@ -13,6 +13,7 @@ import sklearn
 import os
 import sklearn.model_selection
 import numpy as np
+import pickle
 from preprocessor import *
 
 que = questions
@@ -25,6 +26,8 @@ num_words = 23500
 
 tokenizer = tf.keras.preprocessing.text.Tokenizer(filters='', num_words = num_words, oov_token='OOV')
 tokenizer.fit_on_texts(data)
+with open('tokenizer.pkl','wb') as f:
+    pickle.dump(tokenizer,f)
 
 input_tensor = tokenizer.texts_to_sequences(ans)
 input_tensor = tf.keras.preprocessing.sequence.pad_sequences(input_tensor, padding='post',maxlen = 12)
